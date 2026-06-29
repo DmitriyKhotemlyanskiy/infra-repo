@@ -4,4 +4,4 @@ metadata:
   name: mongodb-configmap
   namespace: dev-project
 data:
-  database_url: username:password@localhost:27017
+  database_url: mongo-service

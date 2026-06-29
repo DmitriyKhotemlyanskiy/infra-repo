@@ -42,4 +42,11 @@ spec:
             limits:
               memory: "512Mi"
               cpu: "300m"
-
+          volumeMounts:
+            - name: mongo-data    #same name from volumes.name in this file
+              mountPath: /data/db #where data is saved into container
+              subPath: mongodb    #where data is saved on your host machine
+      volumes:
+        - name: mongo-data        
+          persistentVolumeClaim:
+            claimName: mongo-pvc  #name from mongo-pesristent-volume-claim.yaml
