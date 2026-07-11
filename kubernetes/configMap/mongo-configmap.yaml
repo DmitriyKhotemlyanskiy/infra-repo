@@ -4,4 +4,4 @@ metadata:
   name: mongodb-configmap
   namespace: dev-project
 data:
-  database_url: mongo-service
+  database_url: mongo-stateful-set-0.mongodb-headless.dev-project.svc.cluster.local

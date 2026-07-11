@@ -1,7 +1,6 @@
 # infra-repo
-Initialize
 
-######### For using locally on your host machine ##############
+######### For local using on your host machine ##############
 
 Step 1:
 (Deploying MongoDB and Mongo-Express on Kubernetes using Minikube, 
@@ -97,3 +96,54 @@ Note: (Mongo Express) You may open browser http://localhost:8081 and see
     that Mongo Express application is running.
     Insert username and password from infra-repo/kubernetes/secrets 
     and check that devops_booking DB is exists.
+
+
+######### For using into Minikube k8s cluster ##############
+
+Step 1:
+    (Verifying all components):
+
+!!!!First, check you are in minikube cluster!!!
+---------------------------------------------------
+#Check which contexts is availavle: -->
+
+    @:kubectl config get-contexts
+
+#Switch to minikube context: -->
+
+    @:kubectl config use-context minikube
+
+#Check if Ingress controller is enabled:
+
+    @:minikube addons list
+
+#For enabling Ingress addon use:
+
+    @:minikube addons enable ingress
+
+---------------------------------------------------
+Copy and paste to your terminal this command (be shure you are into 
+.../infra-repo/kubernetes/ in your terminal) -->
+
+    @:kubectl apply \
+        -f secrets/ \
+        -f configMap/ \
+        -f volumes/ \
+        -f deployments/ \
+        -f services/ \
+        -f ingress/
+
+
+
+mongodb://username:password@mongo-stateful-set-0.mongo-service.dev-project.svc.cluster.local:27017,mongo-stateful-set-1.mongo-service.dev-project.svc.cluster.local:27017,mongo-stateful-set-2.mongo-service.dev-project.svc.cluster.local:27017/devops_booking?replicaSet=rs0&authSource=admin
+
+kubectl -n dev-project exec -it pod/mongo-stateful-set-0 -- mongosh --eval "
+rs.initiate({
+  _id: 'rs0',
+  members: [
+    { _id: 0, host: 'mongo-stateful-set-0.mongodb-headless.dev-project.svc.cluster.local:27017' },
+    { _id: 1, host: 'mongo-stateful-set-1.mongodb-headless.dev-project.svc.cluster.local:27017' },
+    { _id: 2, host: 'mongo-stateful-set-2.mongodb-headless.dev-project.svc.cluster.local:27017' }
+  ]
+})
+"
