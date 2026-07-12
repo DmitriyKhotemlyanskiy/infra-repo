@@ -56,7 +56,7 @@ spec:
           secret:
             secretName: mongodb-secret
             items:
-              - key: mongodb-keyfile
+              - key: mongodb-keyfile  # Generated key for mongodb slaves replicas
                 path: keyfile
             defaultMode: 0400 # Strict permissions required by Mongo (Read-only by owner)
   volumeClaimTemplates:
