@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongo-stateful-set
+  namespace: dev-project
+  labels:
+    app: mongodb
+spec:
+  serviceName: mongodb-headless
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+        - name: mongodb
+          image: mongo:7.0
+          command:
+            - "mongod"
+            - "--bind_ip_all"
+            - "--replSet=rs0" # Initiates the replica set rs0
+            - "--auth"        # Enables authentication enforcement
+            - "--keyFile=/data/configdb/keyfile" # Required for multi-node sync
+          ports:
+            - containerPort: 27017
+              name: mongodb
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-secret
+                  key: mongo-root-username
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-secret
+                  key: mongo-root-password
+          volumeMounts:
+            - name: mongo-data
+              mountPath: /data/db
+            - name: keyfile-volume
+              mountPath: /data/configdb
+          resources:
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+      volumes:
+        - name: keyfile-volume
+          secret:
+            secretName: mongodb-secret
+            items:
+              - key: mongodb-keyfile  # Generated key for mongodb slaves replicas
+                path: keyfile
+            defaultMode: 0400 # Strict permissions required by Mongo (Read-only by owner)
+  volumeClaimTemplates:
+    - metadata:
+        name: mongo-data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 2Gi

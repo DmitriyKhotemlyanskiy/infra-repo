@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bakend-app-deployment
+  namespace: dev-project
+  labels:
+    app: backend-app
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: backend-app
+  template:
+    metadata:
+      labels:
+        app: backend-app
+    spec:
+      containers:
+        - name: backend-api
+          image: dimakhot/backend-app:v1.0
+          ports:
+            - containerPort: 8085
+          resources:
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          env:
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: MONGO_URI
