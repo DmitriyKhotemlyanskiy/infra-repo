@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: backend-api
-          image: dimakhot/backend-app:v1.0
+          image: dimakhot/backend-app:67b26186ebdfb4521d2484d7d3a64108755b3a4a
           ports:
             - containerPort: 8085
           resources:
