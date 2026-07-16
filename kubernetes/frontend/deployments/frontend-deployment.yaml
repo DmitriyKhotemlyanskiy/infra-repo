@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: frontend-app
-          image: dimakhot/frontend-py3-app:v1.0.3
+          image: dimakhot/frontend-py3-app:59cad164f1ce658957bb90f760210a4ae75bf8a1
           ports:
             - containerPort: 3000
           resources:
