@@ -3,5 +3,7 @@ kind: ConfigMap
 metadata:
   name: mongodb-configmap
   namespace: dev-project
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 data:
   database_url: mongo-stateful-set-0.mongodb-headless.dev-project.svc.cluster.local

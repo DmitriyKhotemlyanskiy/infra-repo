@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   name: bakend-app-deployment
   namespace: dev-project
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
   labels:
     app: backend-app
 spec:

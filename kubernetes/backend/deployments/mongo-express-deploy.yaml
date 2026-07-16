@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   name: mongo-express
   namespace: dev-project
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
   labels:
     app: mongo-express
 spec:

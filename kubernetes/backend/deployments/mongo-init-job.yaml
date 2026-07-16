@@ -1,0 +1,34 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mongo-init-replica
+  namespace: dev-project
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"      
+    argocd.argoproj.io/hook: PostSync      
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+  template:
+    spec:
+      containers:
+      - name: mongo-init
+        image: mongo:7.0
+        command:
+        - mongosh
+        - "mongodb://username:password@mongo-stateful-set-0.mongodb-headless.dev-project.svc.cluster.local:27017/?authSource=admin"
+        - "--eval"
+        - |
+          try {
+            var status = rs.status();
+            print("Replica set already initialized.");
+          } catch (e) {
+            print("Initializing replica set...");
+            rs.initiate({
+              _id: "rs0",
+              members: [
+                { _id: 0, host: "mongo-stateful-set-0.mongodb-headless.dev-project.svc.cluster.local:27017" },
+                { _id: 1, host: "mongo-stateful-set-1.mongodb-headless.dev-project.svc.cluster.local:27017" },
+                { _id: 2, host: "mongo-stateful-set-2.mongodb-headless.dev-project.svc.cluster.local:27017" }
+              ]
+            });
+          }
+      restartPolicy: Never

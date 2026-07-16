@@ -3,6 +3,8 @@ kind: StatefulSet
 metadata:
   name: mongo-stateful-set
   namespace: dev-project
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
   labels:
     app: mongodb
 spec:

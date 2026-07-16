@@ -3,6 +3,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: mongo-pvc
   namespace: dev-project
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   resources:
     requests:
