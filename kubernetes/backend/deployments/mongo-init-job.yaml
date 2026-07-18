@@ -14,21 +14,24 @@ metadata:
         image: mongo:7.0
         command:
         - mongosh
-        - "mongodb://username:password@mongo-stateful-set-0.mongodb-headless.dev-project.svc.cluster.local:27017/?authSource=admin"
+        - "kubectl exec -it mongo-stateful-set-0 -n dev-project -- mongosh --host 127.0.0.1"
         - "--eval"
         - |
+          use admin
+          db.createUser({
+            user: "username",
+            pwd: "password",
+            roles: [ { role: "root", db: "admin" } ]
+          })
           try {
             var status = rs.status();
             print("Replica set already initialized.");
           } catch (e) {
             print("Initializing replica set...");
-            rs.initiate({
-              _id: "rs0",
-              members: [
-                { _id: 0, host: "mongo-stateful-set-0.mongodb-headless.dev-project.svc.cluster.local:27017" },
-                { _id: 1, host: "mongo-stateful-set-1.mongodb-headless.dev-project.svc.cluster.local:27017" },
-                { _id: 2, host: "mongo-stateful-set-2.mongodb-headless.dev-project.svc.cluster.local:27017" }
-              ]
-            });
+            cfg = rs.conf();
+            cfg.members[0].host = "mongo-stateful-set-0.mongodb-headless.dev-project.svc.cluster.local:27017";
+            cfg.members[1].host = "mongo-stateful-set-1.mongodb-headless.dev-project.svc.cluster.local:27017";
+            cfg.members[2].host = "mongo-stateful-set-2.mongodb-headless.dev-project.svc.cluster.local:27017";
+            rs.reconfig(cfg, { force: true });
           }
       restartPolicy: Never
