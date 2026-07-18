@@ -134,21 +134,40 @@ Copy and paste to your terminal this command (be shure you are into
         -f ingress/
 
 
+Step 1: Connect with zero credentials to MongoDB
+Run this command to drop straight into the database without passing any username or password:
 
-mongodb://username:password@mongo-stateful-set-0.mongo-service.dev-project.svc.cluster.local:27017,mongo-stateful-set-1.mongo-service.dev-project.svc.cluster.local:27017,mongo-stateful-set-2.mongo-service.dev-project.svc.cluster.local:27017/devops_booking?replicaSet=rs0&authSource=admin
+Bash
+kubectl exec -it mongo-stateful-set-0 -n dev-project -- mongosh --host 127.0.0.1
 
-mongodb://username:password@mongo-stateful-set-0.mongodb-headless.dev-project.svc.cluster.local:27017,mongo-stateful-set-1.mongodb-headless.dev-project.svc.cluster.local:27017,mongo-stateful-set-2.mongodb-headless.dev-project.svc.cluster.local:27017/?replicaSet=rs0&authSource=admin
+(You should see a successful connection prompt, ignoring authentication!)
 
-kubectl -n dev-project exec -it pod/mongo-stateful-set-0 -- mongosh --eval "
-rs.initiate({
-  _id: 'rs0',
-  members: [
-    { _id: 0, host: 'mongo-stateful-set-0.mongodb-headless.dev-project.svc.cluster.local:27017' },
-    { _id: 1, host: 'mongo-stateful-set-1.mongodb-headless.dev-project.svc.cluster.local:27017' },
-    { _id: 2, host: 'mongo-stateful-set-2.mongodb-headless.dev-project.svc.cluster.local:27017' }
-  ]
+Step 2: Initialize the Replica Set
+While inside that shell, copy-paste and execute your initialization block:
+
+JavaScript
+
+cfg = rs.conf();
+cfg.members[0].host = "mongo-stateful-set-0.mongodb-headless.dev-project.svc.cluster.local:27017";
+cfg.members[1].host = "mongo-stateful-set-1.mongodb-headless.dev-project.svc.cluster.local:27017";
+cfg.members[2].host = "mongo-stateful-set-2.mongodb-headless.dev-project.svc.cluster.local:27017";
+rs.reconfig(cfg, { force: true });
+
+Press enter. Wait about 10–15 seconds for the prompt to change from STARTUP2 to PRIMARY.
+
+Step 3: Explicitly Create the Root User
+Because your MONGO_INITDB_ROOT_USERNAME might have been skipped due to the strict early --auth flag, let's manually register your root user right now on the primary node. Run this code inside the same window:
+
+JavaScript
+use admin
+db.createUser({
+  user: "username",
+  pwd: "password",
+  roles: [ { role: "root", db: "admin" } ]
 })
-"
+(You should see Ok: 1 or a confirmation message).
+
+Type exit to leave the shell.
 
 
 mongodb://admin:passw@mongo-stateful-set-0.mongo-service.dev-project.svc.cluster.local:27017/admin?replicaSet=rs0&authSource=admin
