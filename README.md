@@ -137,6 +137,8 @@ Copy and paste to your terminal this command (be shure you are into
 
 mongodb://username:password@mongo-stateful-set-0.mongo-service.dev-project.svc.cluster.local:27017,mongo-stateful-set-1.mongo-service.dev-project.svc.cluster.local:27017,mongo-stateful-set-2.mongo-service.dev-project.svc.cluster.local:27017/devops_booking?replicaSet=rs0&authSource=admin
 
+mongodb://username:password@mongo-stateful-set-0.mongodb-headless.dev-project.svc.cluster.local:27017,mongo-stateful-set-1.mongodb-headless.dev-project.svc.cluster.local:27017,mongo-stateful-set-2.mongodb-headless.dev-project.svc.cluster.local:27017/?replicaSet=rs0&authSource=admin
+
 kubectl -n dev-project exec -it pod/mongo-stateful-set-0 -- mongosh --eval "
 rs.initiate({
   _id: 'rs0',
@@ -148,4 +150,6 @@ rs.initiate({
 })
 "
 
-new string
+
+mongodb://admin:passw@mongo-stateful-set-0.mongo-service.dev-project.svc.cluster.local:27017/admin?replicaSet=rs0&authSource=admin
+
