@@ -3,7 +3,5 @@ kind: ConfigMap
 metadata:
   name: frontend-configmap
   namespace: dev-project
-  annotations:
-    argocd.argoproj.io/sync-wave: "4"
 data:
   API_URL: http://app.test
