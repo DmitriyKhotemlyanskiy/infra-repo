@@ -1,37 +1,138 @@
+#apiVersion: batch/v1
+#kind: Job
+#metadata:
+#  name: mongo-init-replica
+#  namespace: dev-project
+#  annotations:
+#    argocd.argoproj.io/sync-wave: "2"      
+#    argocd.argoproj.io/hook: PostSync      
+#    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+#  template:
+#    spec:
+#      containers:
+#      - name: mongo-init
+#        image: mongo:7.0
+#        command:
+#        - mongosh
+#        - "kubectl exec -it mongo-stateful-set-0 -n dev-project -- mongosh --host 127.0.0.1"
+#        - "--eval"
+#        - |
+#          use admin
+#          db.createUser({
+#            user: "username",
+#            pwd: "password",
+#            roles: [ { role: "root", db: "admin" } ]
+#          })
+#          try {
+#            var status = rs.status();
+#            print("Replica set already initialized.");
+#          } catch (e) {
+#            print("Initializing replica set...");
+#            cfg = rs.conf();
+#            cfg.members[0].host = "mongo-stateful-set-0.mongodb-headless.dev-project.svc.cluster.local:27017";
+#            cfg.members[1].host = "mongo-stateful-set-1.mongodb-headless.dev-project.svc.cluster.local:27017";
+#            cfg.members[2].host = "mongo-stateful-set-2.mongodb-headless.dev-project.svc.cluster.local:27017";
+#            rs.reconfig(cfg, { force: true });
+#          }
+#      restartPolicy: Never
+
+
+---
+# 1. Create a ServiceAccount that our Job will use
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: mongo-init-sa
+  namespace: dev-project
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+---
+# 2. Grant this account permissions to execute "kubectl exec" in other pods
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pod-exec-role
+  namespace: dev-project
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+rules:
+- apiGroups: [""]
+  resources: ["pods", "pods/exec"]
+  verbs: ["get", "list", "create"]
+---
+# 3. Bind the ServiceAccount and the Role together
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: pod-exec-binding
+  namespace: dev-project
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+subjects:
+- kind: ServiceAccount
+  name: mongo-init-sa
+  namespace: dev-project
+roleRef:
+  kind: Role
+  name: pod-exec-role
+  apiGroup: rbac.authorization.k8s.io
+---
+# 4. The automation script itself
 apiVersion: batch/v1
 kind: Job
 metadata:
   name: mongo-init-replica
   namespace: dev-project
   annotations:
-    argocd.argoproj.io/sync-wave: "2"      
-    argocd.argoproj.io/hook: PostSync      
+    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/hook: PostSync
     argocd.argoproj.io/hook-delete-policy: HookSucceeded
+spec:
   template:
     spec:
+      serviceAccountName: mongo-init-sa # 👈 Use our account with permissions
       containers:
       - name: mongo-init
-        image: mongo:7.0
+        image: bitnami/kubectl:latest   # 👈 Use an image with kubectl installed
         command:
-        - mongosh
-        - "kubectl exec -it mongo-stateful-set-0 -n dev-project -- mongosh --host 127.0.0.1"
-        - "--eval"
+        - /bin/bash
+        - -c
         - |
-          use admin
-          db.createUser({
-            user: "username",
-            pwd: "password",
-            roles: [ { role: "root", db: "admin" } ]
-          })
-          try {
-            var status = rs.status();
-            print("Replica set already initialized.");
-          } catch (e) {
-            print("Initializing replica set...");
-            cfg = rs.conf();
-            cfg.members[0].host = "mongo-stateful-set-0.mongodb-headless.dev-project.svc.cluster.local:27017";
-            cfg.members[1].host = "mongo-stateful-set-1.mongodb-headless.dev-project.svc.cluster.local:27017";
-            cfg.members[2].host = "mongo-stateful-set-2.mongodb-headless.dev-project.svc.cluster.local:27017";
-            rs.reconfig(cfg, { force: true });
-          }
+          echo "Waiting for mongo-stateful-set-0 to be fully ready..."
+          kubectl wait --for=condition=ready pod/mongo-stateful-set-0 -n dev-project --timeout=60s
+          
+          echo "Initializing the replica set (Step 1)..."
+          kubectl exec mongo-stateful-set-0 -n dev-project -- mongosh --host 127.0.0.1 --eval '
+            try {
+              rs.status();
+              print("Already initialized");
+            } catch(e) {
+              rs.initiate({
+                _id: "rs0",
+                members: [
+                  { _id: 0, host: "mongo-stateful-set-0.mongodb-headless.dev-project.svc.cluster.local:27017" },
+                  { _id: 1, host: "mongo-stateful-set-1.mongodb-headless.dev-project.svc.cluster.local:27017" },
+                  { _id: 2, host: "mongo-stateful-set-2.mongodb-headless.dev-project.svc.cluster.local:27017" }
+                ]
+              });
+            }
+          '
+          
+          echo "Waiting 10 seconds for PRIMARY node elections to finish..."
+          sleep 10
+          
+          echo "Creating the user (Step 2)..."
+          kubectl exec mongo-stateful-set-0 -n dev-project -- mongosh --host 127.0.0.1 --eval '
+            use admin;
+            try {
+              db.createUser({
+                user: "username",
+                pwd: "password",
+                roles: [ { role: "root", db: "admin" } ]
+              });
+              print("User successfully created!");
+            } catch(e) {
+              print("User already exists or an error occurred.");
+            }
+          '
       restartPolicy: Never
