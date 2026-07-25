@@ -22,6 +22,18 @@ spec:
         image: mongo-express:1.0.2-20-alpine3.19
         ports:
         - containerPort: 8081
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8081
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8081
+          initialDelaySeconds: 15
+          periodSeconds: 15
         env:
         - name: ME_CONFIG_BASICAUTH_USERNAME
           valueFrom:
