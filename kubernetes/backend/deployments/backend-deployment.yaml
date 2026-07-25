@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: bakend-app-deployment
+  name: backend-app-deployment
   namespace: dev-project
   annotations:
     argocd.argoproj.io/sync-wave: "3"
