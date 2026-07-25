@@ -20,10 +20,11 @@ spec:
         - "-c"
         - |
           echo "Waiting for MongoDB pods to start..."
-          sleep 15
+          sleep 10
 
           echo "Checking if replica set is already initialized..."
-          mongosh --host mongo-stateful-set-0.mongodb-headless.dev-project.svc.cluster.local:27017 --eval "
+          # ДОБАВЛЕНЫ флаги -u "username" -p "password" --authenticationDatabase admin
+          mongosh --host mongo-stateful-set-0.mongodb-headless.dev-project.svc.cluster.local:27017 -u "username" -p "password" --authenticationDatabase admin --eval "
             try {
               rs.status();
               print('Replica set already initialized.');
@@ -41,13 +42,13 @@ spec:
           "
 
           echo "Waiting for PRIMARY to be elected..."
-          until mongosh --host mongo-stateful-set-0.mongodb-headless.dev-project.svc.cluster.local:27017 --quiet --eval "rs.isMaster().ismaster" | grep -q "true"; do
-            sleep 5
+          until mongosh --host mongo-stateful-set-0.mongodb-headless.dev-project.svc.cluster.local:27017 -u "username" -p "password" --authenticationDatabase admin --quiet --eval "rs.isMaster().ismaster" | grep -q "true"; do
+            sleep 3
             echo "Waiting for primary..."
           done
 
           echo "Creating or updating root user..."
-          mongosh --host mongo-stateful-set-0.mongodb-headless.dev-project.svc.cluster.local:27017 --eval "
+          mongosh --host mongo-stateful-set-0.mongodb-headless.dev-project.svc.cluster.local:27017 -u "username" -p "password" --authenticationDatabase admin --eval "
             use admin;
             try {
               db.createUser({
