@@ -1,0 +1,9 @@
+services:
+  nexus:
+    container_name: nexus
+    image: sonatype/nexus3
+    volumes:
+      - "./sonatype-work:/opt/sonatype/sonatype-work"
+    ports:
+      - "5000:5000"
+      - "8082:8081"

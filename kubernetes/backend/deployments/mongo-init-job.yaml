@@ -43,7 +43,7 @@ spec:
 
           echo "Waiting for PRIMARY to be elected..."
           until mongosh --host mongo-stateful-set-0.mongodb-headless.dev-project.svc.cluster.local:27017 -u "username" -p "password" --authenticationDatabase admin --quiet --eval "rs.isMaster().ismaster" | grep -q "true"; do
-            sleep 3
+            sleep 15
             echo "Waiting for primary..."
           done
 

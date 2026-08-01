@@ -1,4 +1,119 @@
 # infra-repo
+The project follows a strict branching and GitOps deployment strategy to ensure code quality and stability:
+
+1. **Development (`dev` branch):** 
+   - Developers push their backend and frontend code updates to the `dev` branch.
+2. **Code Review (Pull Request):** 
+   - Once features are ready, a **Pull Request (PR)** is opened from `dev` to `main`.
+   - The Team Lead reviews the code, and automated CI checks run.
+3. **Production Merge (`main` branch):** 
+   - After approval, the PR is merged into the `main` branch (Production).
+4. **Automated Delivery (ArgoCD):** 
+   - Merging into `main` triggers the CI pipeline (GitHub Actions) to build new images and update manifests.
+   - **ArgoCD** detects the changes in the `main` branch (or infrastructure repo) and automatically synchronizes the Kubernetes cluster with the new application versions.
+
+
+
+       +------------------+
+       |   Developer      |
+       +--------+---------+
+                | git push (to dev -> PR -> main)
+                v
+       +------------------+      1. Build & Push Image
+       |  GitHub Actions  | ------------------------+
+       |  (CI Pipeline)   |                         |
+       +------------------+                         v
+                |                          +--------------------+
+                | 2. Update Image Tag      |  Container Registry|
+                |                          |    Docker Hub      |
+                v                          +--------------------+
+       +------------------+                         |
+       |  Infrastructure  | <-----------------------+
+       |   Git Repo       |
+       +--------+---------+
+                |
+                | 3. GitOps Sync (Pull)
+                v
+       +-------------------------------------------------------+
+       |                        ArgoCD                         |
+       |  +-------------------------------------------------+  |
+       |  |                  Root App                       |  |
+       |  |         ("App of Apps" orchestrator)            |  |
+       |  +---------+-----------------------------+---------+  |
+       |            |                             |            |
+       |            v (Manages)                   v (Manages)  |
+       |  +------------------+          +-------------------+  |
+       |  |  Frontend App    |          |   Backend App     |  |
+       |  +------------------+          +-------------------+  |
+       +-------------------------------------------------------+
+                                |
+                                | 4. Reconcile / Deploy
+                                v
+       +-------------------------------------------------------+
+       |                  Kubernetes Cluster                   |
+       |   +------------------+      +----------------------+  |
+       |   | Backend Pod (Go) | ---> | MongoDB (Database)   |  |
+       |   +--------+---------+      +----------------------+  |
+       |            |                           ^              |
+       |            v                           |              |
+       |   [ Frontend Pod ]         +-----------+-----------+  |
+       |                            | mongo-express Pod     |  |
+       |                            | (Admin UI via LB)     |  |
+       |                            +-----------------------+  |
+       +-------------------------------------------------------+
+
+
+## 🐙 ArgoCD GitOps & "App of Apps" Pattern
+
+To adhere to enterprise-grade Kubernetes best practices, the project implements the **ArgoCD "App of Apps"** architectural pattern:
+- **Root Application:** A single top-level ArgoCD application (`root-app`) monitors the infrastructure repository. 
+- **Managed Children:** It automatically provisions, monitors, and synchronizes both the **Frontend** and **Backend** child applications. 
+- **Self-Healing & Health Check:** The root application continuously reconciles the cluster state, ensuring that if any component (frontend or backend) drifts or fails, ArgoCD automatically brings it back to the desired healthy state defined in Git.
+
+
+- **Note:**
+
+
+    ******If you use MacOS just run:******
+        sudo chmod +x deploy_all.sh && ./deploy_all.sh
+    And All project will start automatically on your local machine.
+    You will ask for enter admin password and the script will open 3 terminal windows for port forwarding and creating access for all WEB UIs.
+
+    ******If you use Linux machine:******
+# First run: 
+sudo chmod +x addip.sh && sudo ./addip.sh
+# 1. Create namespace
+kubectl create namespace argocd
+kubectl create namespace dev-project
+
+# 2. Install ArgoCD
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+echo "⏳ Wait for ArgoCD server is up..."
+kubectl wait --namespace argocd --for=condition=ready pod -l app.kubernetes.io/name=argocd-server --timeout=300s
+
+# 3. Connect to private repo
+kubectl apply -f /argocd/argo-config/
+
+# 4. Start the ArgoCD
+kubectl apply -f /argocd/applications/
+kubectl apply -f /argocd/root-app.yaml
+
+# 5. After all ports and services will up:
+ Open 3 terminal windows and run these commands (separately in each terminal):
+        1. $>:kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+            $>:kubectl port-forward svc/argocd-server -n argocd 8080:443
+        2. $>:kubectl port-forward svc/mongo-express-service -n dev-project 8081:8081
+        3. $>:sudo kubectl port-forward -n ingress-nginx svc/ingress-nginx-controller 80:80 443:443
+
+******Congratulations!!!******
+
+Now you may open web browser and enter to:
+Argocd: https://localhost:8080/
+Mongo Express: http://localhost:8081/
+Frontend App : http://app.test/
+
+
 
 ######### For local using on your host machine ##############
 

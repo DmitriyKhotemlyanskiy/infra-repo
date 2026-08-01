@@ -1,0 +1,6 @@
+[28/Jul/2026:16:19:54 +0000] - "GET https://links.sonatype.com/products/nexus/outreach/community/3.94.1-06/en/admin HTTP/1.1" 302 145 786 - [pool-6-thread-1]
+[28/Jul/2026:16:19:55 +0000] - "GET https://download.sonatype.com/nexus/outreach/community-en-all-admin.zip HTTP/1.1" 302 138 1165 - [pool-6-thread-1]
+[28/Jul/2026:16:20:43 +0000] - "GET https://links.sonatype.com/products/nexus/outreach/community/3.94.1-06/en/none HTTP/1.1" 302 145 723 - [qtp1322122707-86]
+[28/Jul/2026:16:20:44 +0000] - "GET https://download.sonatype.com/nexus/outreach/community-en-all-none.zip HTTP/1.1" 302 138 880 - [qtp1322122707-86]
+[28/Jul/2026:16:20:44 +0000] - "HEAD https://links.sonatype.com/products/nexus/outreach/community/3.94.1-06/en/none HTTP/1.1" 302 0 160 - [pool-6-thread-3]
+[28/Jul/2026:16:20:45 +0000] - "HEAD https://download.sonatype.com/nexus/outreach/community-en-all-none.zip HTTP/1.1" 302 0 287 - [pool-6-thread-3]
