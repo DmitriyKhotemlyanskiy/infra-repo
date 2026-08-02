@@ -56,3 +56,9 @@
 2026-08-02 13:48:04,158+0000 INFO  [quartz-13-thread-15]  *TASK com.sonatype.nexus.plugins.healthcheck.task.HealthCheckTask - Received health check report for repository nuget.org-proxy
 2026-08-02 13:48:04,173+0000 INFO  [quartz-13-thread-15]  *TASK org.sonatype.nexus.scheduling.TaskSchedulerImpl - Task 'System - Repository Health Check: nuget.org-proxy' [healthcheck] scheduled: hourly
 2026-08-02 13:48:04,177+0000 INFO  [quartz-13-thread-15]  *TASK org.sonatype.nexus.quartz.internal.task.QuartzTaskInfo - Task 'System - Repository Health Check: nuget.org-proxy' [healthcheck] state change RUNNING -> WAITING (OK)
+2026-08-02 14:00:00,099+0000 INFO  [quartz-13-thread-19]  *TASK org.sonatype.nexus.quartz.internal.task.QuartzTaskInfo - Task 'Cleanup unused nuget blobs from nexus' [assetBlob.cleanup] state change WAITING -> RUNNING
+2026-08-02 14:00:00,099+0000 INFO  [quartz-13-thread-15]  *TASK org.sonatype.nexus.quartz.internal.task.QuartzTaskInfo - Task 'Cleanup unused maven2 blobs from nexus' [assetBlob.cleanup] state change WAITING -> RUNNING
+2026-08-02 14:00:00,216+0000 INFO  [quartz-13-thread-19]  *TASK org.sonatype.nexus.quartz.internal.task.QuartzTaskInfo - Task 'Cleanup unused nuget blobs from nexus' [assetBlob.cleanup] state change RUNNING -> WAITING (OK)
+2026-08-02 14:00:00,219+0000 INFO  [quartz-13-thread-15]  *TASK org.sonatype.nexus.quartz.internal.task.QuartzTaskInfo - Task 'Cleanup unused maven2 blobs from nexus' [assetBlob.cleanup] state change RUNNING -> WAITING (OK)
+2026-08-02 14:01:00,120+0000 INFO  [quartz-13-thread-15]  *TASK org.sonatype.nexus.quartz.internal.task.QuartzTaskInfo - Task 'Metric aggregation' [content.usage.aggregation] state change WAITING -> RUNNING
+2026-08-02 14:01:00,287+0000 INFO  [quartz-13-thread-15]  *TASK org.sonatype.nexus.quartz.internal.task.QuartzTaskInfo - Task 'Metric aggregation' [content.usage.aggregation] state change RUNNING -> WAITING (OK)
