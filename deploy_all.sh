@@ -37,9 +37,9 @@ tell application "Terminal"
     do script "echo '--- ArgoCD Port-Forward (8080) ---'; kubectl port-forward svc/argocd-server -n argocd 8080:443"
     
     -- 2. Mongo-Express Port-Forward
-    do script "echo '--- Mongo-Express Port-Forward (8081) ---'; kubectl port-forward svc/mongo-express-service -n dev-project 8081:8081"
+    do script "echo '--- Mongo-Express Port-Forward (8081) ---'; kubectl port-forward svc/mongo-express-clusterip -n dev-project 8081:8081"
     
-    -- 3. Ingress Nginx Port-Forward (требует sudo, поэтому запросит пароль в том окне)
+    -- 3. Ingress Nginx Port-Forward
     do script "echo '--- Ingress Nginx Port-Forward (80/443) ---'; sudo kubectl port-forward -n ingress-nginx svc/ingress-nginx-controller 80:80 443:443"
 end tell
 EOF
