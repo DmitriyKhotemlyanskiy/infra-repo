@@ -25,3 +25,10 @@ spec:
                 name: backend-clusterip
                 port:
                   number: 8085
+          - path: "/mongo-express"
+            pathType: Prefix
+            backend:
+              service:
+                name: mongo-express-clusterip
+                port:
+                  number: 8081
