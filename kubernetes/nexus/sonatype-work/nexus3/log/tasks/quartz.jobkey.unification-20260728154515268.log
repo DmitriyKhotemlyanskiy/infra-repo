@@ -1,9 +1,0 @@
-2026-07-28 15:45:15,269+0000 INFO  [quartz-13-thread-10]  *TASK org.sonatype.nexus.quartz.internal.upgrades.QuartzJobKeyUnificationTask - Task information:
-2026-07-28 15:45:15,273+0000 INFO  [quartz-13-thread-10]  *TASK org.sonatype.nexus.quartz.internal.upgrades.QuartzJobKeyUnificationTask -  ID: 64d60fab-667c-4f51-9190-94fea3af44b3
-2026-07-28 15:45:15,273+0000 INFO  [quartz-13-thread-10]  *TASK org.sonatype.nexus.quartz.internal.upgrades.QuartzJobKeyUnificationTask -  Type: quartz.jobkey.unification
-2026-07-28 15:45:15,274+0000 INFO  [quartz-13-thread-10]  *TASK org.sonatype.nexus.quartz.internal.upgrades.QuartzJobKeyUnificationTask -  Name: Quartz - Job Key Unification
-2026-07-28 15:45:15,274+0000 INFO  [quartz-13-thread-10]  *TASK org.sonatype.nexus.quartz.internal.upgrades.QuartzJobKeyUnificationTask -  Description: Unifies job keys with task configuration IDs
-2026-07-28 15:45:15,274+0000 INFO  [quartz-13-thread-10]  *TASK org.sonatype.nexus.quartz.internal.upgrades.QuartzJobKeyUnificationTask - Task configuration: {.updated=2026-07-28T15:45:15.239Z, .name=Quartz - Job Key Unification, .recoverable=false, .message=Unifies job keys with task configuration IDs, .id=64d60fab-667c-4f51-9190-94fea3af44b3, .typeName=Quartz - Job Key Unification, .visible=false, .typeId=quartz.jobkey.unification, .exposed=false, .created=2026-07-28T15:45:15.239Z}
-2026-07-28 15:45:15,276+0000 INFO  [quartz-13-thread-10]  *TASK org.sonatype.nexus.quartz.internal.upgrades.QuartzJobKeyUnificationTask - Starting job key unification with timeout of 10 min
-2026-07-28 15:45:15,290+0000 INFO  [quartz-13-thread-10]  *TASK org.sonatype.nexus.quartz.internal.upgrades.QuartzJobKeyUnificationTask - Job key unification completed successfully
-2026-07-28 15:45:15,290+0000 INFO  [quartz-13-thread-10]  *TASK org.sonatype.nexus.quartz.internal.upgrades.QuartzJobKeyUnificationTask - Task complete
