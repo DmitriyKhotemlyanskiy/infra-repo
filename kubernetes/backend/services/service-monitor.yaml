@@ -1,0 +1,15 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: backend-servicemonitor
+  namespace: dev-project
+  labels:
+    release: kube-prometheus-stack 
+spec:
+  selector:
+    matchLabels:
+      app: backend-app
+  endpoints:
+    - port: http # Point to name: http from Service
+      path: /metrics # Router from Gin (r.GET("/metrics"))
+      interval: 15s # Frequency metrics scrapping 
