@@ -9,7 +9,7 @@ kubectl create namespace argocd
 kubectl create namespace dev-project
 
 # 2. Install ArgoCD
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+kubectl apply --server-side --overwrite -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
 echo "⏳ Wait for ArgoCD server is up..."
 kubectl wait --namespace argocd --for=condition=ready pod -l app.kubernetes.io/name=argocd-server --timeout=300s
