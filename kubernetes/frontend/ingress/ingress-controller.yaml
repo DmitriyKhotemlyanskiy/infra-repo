@@ -25,10 +25,3 @@ spec:
                 name: backend-clusterip
                 port:
                   number: 8085
-          - path: "/metrics"
-            pathType: Prefix
-            backend:
-              service:
-                name: backend-clusterip
-                port:
-                  number: 8085
