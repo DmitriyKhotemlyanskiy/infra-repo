@@ -16,20 +16,28 @@ spec:
       values: |
         grafana:
           adminPassword: "admin"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
         prometheus:
           prometheusSpec:
-            # Allow to scrape ServiceMonitor from all namespaces
             serviceMonitorSelectorNilUsesHelmValues: false
+            retention: 1d # Save metrics only 1 day, not 10 days
             resources:
               requests:
-                memory: "300Mi"
+                memory: "256Mi"
                 cpu: "100m"
               limits:
-                memory: "1Gi"
+                memory: "512Mi" # No more than 512 МB
         # Desable NodeExporter for mac os 
         nodeExporter:
           enabled: false
         prometheus-node-exporter:
+          enabled: false
+        alertmanager:
           enabled: false
   destination:
     server: 'https://kubernetes.default.svc'
